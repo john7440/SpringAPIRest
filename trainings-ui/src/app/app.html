@@ -1,51 +1,86 @@
-<nav>
-  <strong>TRAININGS</strong>
-  <a (click)="showCart = false">Liste des Formations</a>
-  <a (click)="showCart = true">Contenu du Panier [{{ cart.length }}]</a>
+<nav class="navbar navbar-expand navbar-dark bg-dark px-3">
+  <span class="navbar-brand">TRAININGS</span>
+
+  <ul class="navbar-nav me-auto">
+    <li class="nav-item">
+      <button type="button" class="nav-link" [class.active]="!showCart()" (click)="showCart.set(false)">
+        Liste des Formations
+      </button>
+    </li>
+  </ul>
+
+  <button type="button" class="btn btn-outline-light position-relative"
+          [class.active]="showCart()" (click)="showCart.set(true)">
+    Panier
+    @if (cart().length > 0) {
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        {{ cart().length }}
+        <span class="visually-hidden">formations dans le panier</span>
+      </span>
+    }
+  </button>
 </nav>
 
-@if (!showCart) {
-  @if (error) {
-    <p style="color: red; text-align: center">{{ error }}</p>
+<div class="container my-4">
+  @if (!showCart()) {
+    @if (error()) {
+      <div class="alert alert-danger">{{ error() }}</div>
+    }
+    <table class="table table-striped align-middle">
+      <thead>
+      <tr>
+        <th>NOM</th><th>DESCRIPTION</th><th>STOCK</th><th>PRIX</th><th>QUANTITE</th><th></th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (t of trainings(); track t.id) {
+          <tr>
+            <td>{{ t.name }}</td>
+            <td>{{ t.description }}</td>
+            <td>{{ t.quantity }}</td>
+            <td>{{ t.price }} €</td>
+            <td>
+              <label class="visually-hidden" [for]="'qty-' + t.id">Quantité pour {{ t.name }}</label>
+              <input type="number" class="form-control w-auto" min="1" [max]="t.quantity"
+                     [id]="'qty-' + t.id" [(ngModel)]="quantities[t.id!]" />
+            </td>
+            <td><button type="button" class="btn btn-primary" (click)="addToCart(t)">Ajouter</button></td>
+          </tr>
+        } @empty {
+          <tr><td colspan="6">Aucune formation</td></tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <table class="table table-striped align-middle">
+      <thead>
+      <tr><th>NOM</th><th>PRIX</th><th>QUANTITE</th><th></th></tr>
+      </thead>
+      <tbody>
+        @for (l of cart(); track l.training.id) {
+          <tr>
+            <td>{{ l.training.name }}</td>
+            <td>{{ l.training.price }} €</td>
+            <td>{{ l.qty }}</td>
+            <td class="text-end">
+              <button type="button" class="btn btn-danger btn-sm" (click)="removeFromCart(l.training.id!)">
+                Retirer
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="4">Votre panier est vide</td></tr>
+        }
+      </tbody>
+    </table>
+
+    @if (cart().length > 0) {
+      <div class="d-flex justify-content-end">
+        <div class="border rounded px-4 py-2 bg-light">
+          <span class="text-muted me-3">Total</span>
+          <span class="fs-4 fw-bold">{{ total() }} €</span>
+        </div>
+      </div>
+    }
   }
-  <table>
-    <thead>
-    <tr>
-      <th>NOM</th><th>DESCRIPTION</th><th>STOCK</th><th>PRIX</th><th>QUANTITE</th><th>PANIER</th>
-    </tr>
-    </thead>
-    <tbody>
-      @for (t of trainings; track t.id) {
-        <tr>
-          <td>{{ t.name }}</td>
-          <td>{{ t.description }}</td>
-          <td>{{ t.quantity}}</td>
-          <td>{{ t.price }}</td>
-          <td><input type="number" aria-label="quantity" min="1" [max]="t.quantity" [(ngModel)]="quantities[t.id!]" /></td>
-          <td><button (click)="addToCart(t)">Ajouter</button></td>
-        </tr>
-      } @empty {
-        <tr><td colspan="6">Aucune formation</td></tr>
-      }
-    </tbody>
-  </table>
-} @else {
-  <table>
-    <thead>
-    <tr><th>NOM</th><th>PRIX</th><th>QUANTITE</th><th></th></tr>
-    </thead>
-    <tbody>
-      @for (line of cart; track line.training.id) {
-        <tr>
-          <td>{{ line.training.name }}</td>
-          <td>{{ line.training.price }}</td>
-          <td>{{ line.qty }}</td>
-          <td><button (click)="removeFromCart(line.training.id!)">Retirer</button></td>
-        </tr>
-      } @empty {
-        <tr><td colspan="4">Votre panier est vide</td></tr>
-      }
-    </tbody>
-  </table>
-  <p><strong>Total : {{ total }} €</strong></p>
-}
+</div>
