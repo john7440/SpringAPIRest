@@ -1,6 +1,5 @@
-package fr.fms.springapirest.controller;
+package fr.fms.springapirest.entities;
 
-import fr.fms.springapirest.entities.Training;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
