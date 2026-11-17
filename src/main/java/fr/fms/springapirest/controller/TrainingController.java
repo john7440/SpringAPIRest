@@ -2,9 +2,13 @@ package fr.fms.springapirest.controller;
 
 import fr.fms.springapirest.entities.Training;
 import fr.fms.springapirest.service.TrainingService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -28,8 +32,16 @@ public class TrainingController {
     }
 
     @PostMapping
-    public Training create(@RequestBody Training training) {
-        return trainingService.create(training);
+    public ResponseEntity<Training> saveTraining(@RequestBody Training t) {
+        Training training = trainingService.create(t);
+        if (Objects.isNull(training)) {
+            return ResponseEntity.noContent().build();
+        }
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{id}")
+                .buildAndExpand(training.getId()).toUri();
+
+        return ResponseEntity.created(location).body(training);
     }
 
     @PutMapping("/{id}")
