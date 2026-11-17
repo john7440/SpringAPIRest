@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, computed, signal} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Training, TrainingService } from './training.service';
 
@@ -15,44 +15,44 @@ interface CartLine {
   styleUrl: './app.css'
 })
 export class App implements OnInit {
-  trainings: Training[] = [];
+  trainings = signal<Training[]>([]);
   quantities: Record<number, number> = {};
-  cart: CartLine[] = [];
-  showCart = false;
-  error = ''
+  cart = signal<CartLine[]>([]);
+  showCart = signal(false);
+  error = signal('');
+
+  total = computed(() =>
+    this.cart().reduce((sum, l) => sum + l.training.price * l.qty, 0)
+  );
 
   constructor(private readonly service: TrainingService) {}
 
   ngOnInit(): void {
     this.service.findAll().subscribe(data => {
-      this.trainings = data;
       data.forEach(t => (this.quantities[t.id!] = 1));
+      this.trainings.set(data);
     });
   }
 
   addToCart(t: Training): void {
     const qty = this.quantities[t.id!] || 1;
-    const line = this.cart.find(l => l.training.id === t.id);
+    const line = this.cart().find(l => l.training.id === t.id);
     const inCart = line ? line.qty : 0;
 
-    if (inCart + qty > t.quantity){
-      this.error = "Stock insuffisant";
+    if (inCart + qty > t.quantity) {
+      this.error.set(`Stock insuffisant pour ${t.name}`);
       return;
     }
-    this.error ='';
+    this.error.set('');
 
     if (line) {
-      line.qty += qty;
+      this.cart.update(c => c.map(l => (l.training.id === t.id ? { ...l, qty: l.qty + qty } : l)));
     } else {
-      this.cart.push({ training: t, qty });
+      this.cart.update(c => [...c, { training: t, qty }]);
     }
   }
 
   removeFromCart(id: number): void {
-    this.cart = this.cart.filter(l => l.training.id !== id);
-  }
-
-  get total(): number {
-    return this.cart.reduce((sum, l) => sum + l.training.price * l.qty, 0);
+    this.cart.update(c => c.filter(l => l.training.id !== id));
   }
 }
