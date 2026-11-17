@@ -1,12 +1,29 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Training, TrainingService } from './training.service';
+
+interface CartLine {
+  training: Training;
+  qty: number;
+}
 
 @Component({
-  imports: [RouterOutlet],
   selector: 'app-root',
-  styleUrl: './app.css',
+  standalone: true,
+  imports: [FormsModule],
   templateUrl: './app.html',
+  styleUrl: './app.css'
 })
-export class App {
-  protected readonly title = signal('trainings-ui');
+export class App implements OnInit {
+  trainings: Training[] = [];
+  quantities: Record<number, number> = {};
+
+  constructor(private readonly service: TrainingService) {}
+
+  ngOnInit(): void {
+    this.service.findAll().subscribe(data => {
+      this.trainings = data;
+      data.forEach(t => (this.quantities[t.id!] = 1));
+    });
+  }
 }
