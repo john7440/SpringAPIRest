@@ -1,6 +1,6 @@
 package fr.fms.springapirest.repository;
 
-import fr.fms.springapirest.controller.CartItem;
+import fr.fms.springapirest.entities.CartItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
