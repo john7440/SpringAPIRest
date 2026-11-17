@@ -27,7 +27,7 @@ public class CartService {
     }
 
     @Transactional
-    public CartItem add(Long trainingId, int quantity) {
+    public CartItem addToCart(Long trainingId, int quantity) {
         Training t = trainingRepository.findById(trainingId).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Formation introuvable"));
 
         if (quantity < 1 || quantity > t.getQuantity()) {
@@ -39,5 +39,14 @@ public class CartService {
         CartItem item = cartItemRepository.findByTrainingId(trainingId).orElseGet(()-> new CartItem(null,t,0));
         item.setQuantity(item.getQuantity() + quantity);
         return cartItemRepository.save(item);
+    }
+
+    @Transactional
+    public void removeFromCart(Long trainingId) {
+        cartItemRepository.findByTrainingId(trainingId).ifPresent(item  -> {
+            Training t = item.getTraining();
+            t.setQuantity(t.getQuantity() + item.getQuantity());
+            cartItemRepository.delete(item);
+        });
     }
 }
