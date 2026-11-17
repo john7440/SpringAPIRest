@@ -30,4 +30,26 @@ public class TrainingService {
     public Training create(Training training){
         return trainingRepository.save(training);
     }
+
+    @Transactional
+    public Optional<Training> update(Long id,Training training){
+        return trainingRepository.findById(id)
+                .map(currentTraining -> {
+                    currentTraining.setName(training.getName());
+                    currentTraining.setDescription(training.getDescription());
+                    currentTraining.setPrice(training.getPrice());
+                    currentTraining.setQuantity(training.getQuantity());
+
+                    return trainingRepository.save(currentTraining);
+                });
+    }
+
+    @Transactional
+    public boolean deleteById(Long id){
+        if(trainingRepository.existsById(id)){
+            trainingRepository.deleteById(id);
+            return true;
+        }
+        else return false;
+    }
 }
