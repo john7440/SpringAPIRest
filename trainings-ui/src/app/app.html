@@ -44,7 +44,7 @@
               <input type="number" class="form-control w-auto" min="1" [max]="t.quantity"
                      [id]="'qty-' + t.id" [(ngModel)]="quantities[t.id!]" />
             </td>
-            <td><button type="button" class="btn btn-primary" (click)="addToCart(t)">Ajouter</button></td>
+            <td><button type="button" class="btn btn-primary" [disabled]="t.quantity === 0" (click)="addToCart(t)">Ajouter</button></td>
           </tr>
         } @empty {
           <tr><td colspan="6">Aucune formation</td></tr>
@@ -57,11 +57,11 @@
       <tr><th>NOM</th><th>PRIX</th><th>QUANTITE</th><th></th></tr>
       </thead>
       <tbody>
-        @for (l of cart(); track l.training.id) {
+        @for (l of cart(); track l.id) {
           <tr>
             <td>{{ l.training.name }}</td>
             <td>{{ l.training.price }} €</td>
-            <td>{{ l.qty }}</td>
+            <td>{{ l.quantity}}</td>
             <td class="text-end">
               <button type="button" class="btn btn-danger btn-sm" (click)="removeFromCart(l.training.id!)">
                 Retirer
