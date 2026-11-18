@@ -2,6 +2,7 @@ package fr.fms.springapirest.service;
 
 import fr.fms.springapirest.entities.Training;
 import fr.fms.springapirest.repository.TrainingRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +20,7 @@ public class TrainingService {
     }
 
     public List<Training> findAll(){
-        return trainingRepository.findAll();
+        return trainingRepository.findAll(Sort.by("id"));
     }
 
     public Optional<Training> findById(Long id){

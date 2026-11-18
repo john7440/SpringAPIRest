@@ -4,6 +4,7 @@ import fr.fms.springapirest.entities.CartItem;
 import fr.fms.springapirest.entities.Training;
 import fr.fms.springapirest.repository.CartItemRepository;
 import fr.fms.springapirest.repository.TrainingRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,7 @@ public class CartService {
     }
 
     public List<CartItem> findAll() {
-        return cartItemRepository.findAll();
+        return cartItemRepository.findAll(Sort.by("id"));
     }
 
     @Transactional
